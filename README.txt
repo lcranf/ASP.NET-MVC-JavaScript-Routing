@@ -14,7 +14,7 @@ http://weblogs.asp.net/zowens/archive/2011/01/04/asp-net-javascript-routing-for-
 LICENSE
 -------
 
-Copyright (c) 2011, EAGLEENVISION.NET.
+Copyright (c) 2011, Zack Owens.
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without 
