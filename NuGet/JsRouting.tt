@@ -7,7 +7,6 @@
 <#@ assembly name="EnvDTE80" #>
 <#@ assembly name="VSLangProj" #>
 <#@ assembly name="$(ProjectDir)bin\JsRouting.Core.Dll" #>
-<#@ assembly name="$(ProjectDir)bin\StructureMap.Dll" #>
 
 <#@ import namespace="System.IO" #>
 <#@ import namespace="System.Linq" #>
@@ -61,18 +60,16 @@ static Microsoft.CSharp.CSharpCodeProvider codeProvider = new Microsoft.CSharp.C
 
 	string GetOutput(){
 	
-		string[] DoNotScan = { "JsRouting.", "StructureMap.dll" };
+		string[] DoNotScan = { "JsRouting." };
 
 		// get a stream of assemblies that could contain routes, constraints, etc
 		var assemblies =	from fileLocation in Directory.EnumerateFiles(binLocation)
 							where fileLocation.EndsWith(".dll")
 							let fileName = Path.GetFileName(fileLocation)
-							where !DoNotScan.Any(fileName.Contains) // HACK to not scan StrucuteMap and the JsRouting DLLs
+							where !DoNotScan.Any(fileName.Contains) // HACK to not scan JsRouting DLLs
 							select fileLocation;
 							
-		var outputJs = JsRouting.Core.Output.ManagerJs + JsRouting.Core.AssemblyLoader.Load(assemblies).GetInstance<JsRouting.Core.Output>().ToJavaScript();
-
-		return outputJs;
+		return JsRouting.Core.Output.ManagerJs + new JsRouting.Core.Output(JsRouting.Core.AssemblyLoader.Load(assemblies)).ToJavaScript();
 	}
 
 #>

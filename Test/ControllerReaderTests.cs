@@ -4,6 +4,7 @@ using System.Web.Mvc;
 using JsRouting.Core;
 using StructureMap;
 using Xunit;
+using System.Collections.Generic;
 
 namespace Test
 {
@@ -12,110 +13,98 @@ namespace Test
         [Fact]
         public void Ctr_ThrowsException_GivenNullContainer()
         {
-            Assert.Throws<ArgumentNullException>(() => new ControllerReader(null, Enumerable.Empty<IControllerActionInterceptor>()));           
-        }
-
-        [Fact]
-        public void Ctr_ThrowsException_GivenNullInterceptors()
-        {
-            Assert.Throws<ArgumentNullException>(() => new ControllerReader(new Container(), null));
+            Assert.Throws<ArgumentNullException>(() => new ControllerReader(null, new List<IControllerActionInterceptor>()));           
         }
 
         [Fact]
         public void Ctr_AddsControllerActions_FromContainerModel()
         {
-            var container = new Container(config =>
-            {
-                config.AddType(typeof(ControllerBase), typeof(TestController));
-                config.AddType(typeof(ControllerBase), typeof(TestController2));
-            });
-
-            var reader = new ControllerReader(container, new IControllerActionInterceptor[0]);
+            var reader = new ControllerReader(new [] { typeof(TestController), typeof(TestController2) }, new IControllerActionInterceptor[0]);
             Assert.Equal(2, reader.Definitions.Count());
         }
 
         [Fact]
         public void Ctr_DoesNotAddController_WhenInterceptorReturnsFalse()
         {
-            var container = new Container(config =>
+            var types = new []
             {
-                config.AddType(typeof(ControllerBase), typeof(TestController));
-                config.AddType(typeof(ControllerBase), typeof(TestController2));
-            });
+                typeof(TestController),
+                typeof(TestController2),
+            };
 
-            var reader = new ControllerReader(container, new[] { new BlankInterceptor { ReturnValue = true }, new BlankInterceptor { ReturnValue = false }, new BlankInterceptor { ReturnValue = true } });
+            var reader = new ControllerReader(types, new[] { new BlankInterceptor { ReturnValue = true }, new BlankInterceptor { ReturnValue = false }, new BlankInterceptor { ReturnValue = true } });
             Assert.Equal(0, reader.Definitions.Count());
         }
 
         [Fact]
         public void Ctr_AddsControllerParameters()
         {
-            var container = new Container(config =>
+            var types = new[]
             {
-                config.AddType(typeof(ControllerBase), typeof(TestController3));
-            });
+                typeof(TestController3),
+            };
 
-            var reader = new ControllerReader(container, new IControllerActionInterceptor[0]);
+            var reader = new ControllerReader(types, new IControllerActionInterceptor[0]);
             Assert.NotEmpty(reader.Definitions.First(a => a.ActionName.Equals("ParamTest")).Parameters);
         }
 
         [Fact]
         public void Ctr_ControllerActionParameters_WithCorrectName()
         {
-            var container = new Container(config =>
+            var types = new[]
             {
-                config.AddType(typeof(ControllerBase), typeof(TestController3));
-            });
+                typeof(TestController3),
+            };
 
-            var reader = new ControllerReader(container, new IControllerActionInterceptor[0]);
+            var reader = new ControllerReader(types, new IControllerActionInterceptor[0]);
             Assert.Equal("id", reader.Definitions.First(a => a.ActionName.Equals("ParamTest")).Parameters.First.Value.Name);
         }
 
         [Fact]
         public void Ctr_ControllerActionParameters_SetToOptionalIfDefaultValueSpecified()
         {
-            var container = new Container(config =>
+            var types = new[]
             {
-                config.AddType(typeof(ControllerBase), typeof(TestController3));
-            });
+                typeof(TestController3),
+            };
 
-            var reader = new ControllerReader(container, new IControllerActionInterceptor[0]);
+            var reader = new ControllerReader(types, new IControllerActionInterceptor[0]);
             Assert.True(reader.Definitions.First(a => a.ActionName.Equals("DefaultTest")).Parameters.First.Value.Optional);
         }
 
         [Fact]
         public void Ctr_ControllerActionParameters_DefaultValueSetToDefaultVAlueIfSpecified()
         {
-            var container = new Container(config =>
+            var types = new[]
             {
-                config.AddType(typeof(ControllerBase), typeof(TestController3));
-            });
+                typeof(TestController3),
+            };
 
-            var reader = new ControllerReader(container, new IControllerActionInterceptor[0]);
+            var reader = new ControllerReader(types, new IControllerActionInterceptor[0]);
             Assert.Equal("\"" + TestController3.defaultValue + "\"", reader.Definitions.First(a => a.ActionName.Equals("DefaultTest")).Parameters.First.Value.DefaultValue);
         }
 
         [Fact]
         public void Ctr_ControllerActionParameters_SetsDescription_IfDocumentationSpecified()
         {
-            var container = new Container(config =>
+            var types = new[]
             {
-                config.AddType(typeof(ControllerBase), typeof(TestController3));
-            });
+                typeof(TestController3),
+            };
 
-            var reader = new ControllerReader(container, new IControllerActionInterceptor[0]);
+            var reader = new ControllerReader(types, new IControllerActionInterceptor[0]);
             Assert.NotEmpty(reader.Definitions.First(a => a.ActionName.Equals("SummaryTest")).Parameters.First.Value.Description);
         }
 
         [Fact]
         public void Ctr_ControllerAction_SetsDescription_WhenSummaryXMLContainsSummary()
-        { 
-            var container = new Container(config =>
+        {
+            var types = new[]
             {
-                config.AddType(typeof(ControllerBase), typeof(TestController3));
-            });
+                typeof(TestController3),
+            };
 
-            var reader = new ControllerReader(container, new IControllerActionInterceptor[0]);
+            var reader = new ControllerReader(types, new IControllerActionInterceptor[0]);
             Assert.NotEmpty(reader.Definitions.First(a => a.ActionName.Equals("ActionSummaryTest")).Description);
         }
 

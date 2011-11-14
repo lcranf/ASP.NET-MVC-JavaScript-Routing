@@ -7,7 +7,7 @@ namespace Output
 {
     public static class Program
     {
-        private static readonly string[] DoNotScan = { "JsRouting.", "StructureMap.dll" };
+        private static readonly string[] DoNotScan = { "JsRouting." };
 
         public static void Main(string[] args)
         {
@@ -21,13 +21,11 @@ namespace Output
                              from fileLocation in Directory.EnumerateFiles(assemblyDirectory.Without("\"").Trim())
                              where fileLocation.EndsWith(".dll")
                              let fileName = Path.GetFileName(fileLocation)
-                             where !DoNotScan.Any(fileName.Contains) // HACK to not scan StrucuteMap and the JsRouting DLLs
+                             where !DoNotScan.Any(fileName.Contains) // HACK to not scan the JsRouting DLLs
                              select fileLocation;
 
-            var outputJs = JsRouting.Core.Output.ManagerJs + 
-                           AssemblyLoader.Load(assemblies)
-                                         .GetInstance<JsRouting.Core.Output>()
-                                         .ToJavaScript();
+            var outputJs = JsRouting.Core.Output.ManagerJs +
+                new JsRouting.Core.Output(AssemblyLoader.Load(assemblies)).ToJavaScript();
 
             // delete file if it already exists
             if (File.Exists(outputLocation))

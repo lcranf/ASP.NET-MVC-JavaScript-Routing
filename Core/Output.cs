@@ -49,6 +49,13 @@ namespace JsRouting.Core
             this.additions = additions ?? Enumerable.Empty<IJavaScriptAddition>();
         }
 
+        public Output(RouteConstructionContainer container)
+            : this(new RouteReader(container.Sources, container.Interceptors),
+            new ControllerReader(container), container.Additions)
+        {
+
+        }
+
         /// <summary>
         /// Gets the output for the manager JS embedded resource
         /// </summary>

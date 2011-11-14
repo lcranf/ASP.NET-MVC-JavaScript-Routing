@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>JsRouting</id>
-    <version>1.0</version>
+    <version>0.1</version>
     <title>Javascript Routing</title>
     <authors>Zack Owens,Richard Grundy</authors>
     <owners>Zack Owens</owners>
@@ -10,14 +10,10 @@
     <projectUrl>https://github.com/zowens/ASP.NET-MVC-JavaScript-Routing</projectUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <description>Allows ASP.NET MVC routes to be used within JavaScript in a jQuery-like DSL.</description>
-    <summary>Copyright (c) 2011, Zack Owens.
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without 
-modification, are permitted provided that the following conditions are met</summary>
+    <summary>Allows ASP.NET MVC routes to be used within JavaScript in a jQuery-like DSL.</summary>
     <tags>Javascript, Routing, ASP.NET MVC</tags>
     <dependencies>
-      <dependency id="structuremap" version="2.6.3" />
+      <dependency id="jQuery" version="1.7" />
     </dependencies>
     <frameworkAssemblies>
       <frameworkAssembly assemblyName="Microsoft.CSharp" targetFramework="" />

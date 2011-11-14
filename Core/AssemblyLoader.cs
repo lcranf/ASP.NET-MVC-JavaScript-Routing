@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Reflection;
 using System.Web.Mvc;
-using StructureMap;
+using System;
 
 namespace JsRouting.Core
 {
@@ -15,27 +15,108 @@ namespace JsRouting.Core
         /// </summary>
         /// <param name="assemblies">Assemblies to scan</param>
         /// <returns>Container containing various dependencies to form the JavaScript routing definitions</returns>
-        public static IContainer Load(IEnumerable<string> assemblies)
+        public static RouteConstructionContainer Load(IEnumerable<string> assemblies)
         {
-            return new Container(config =>
+            var container = new RouteConstructionContainer();
+
+            foreach (var assembly in assemblies)
             {
-                config.Scan(a =>
+                container.AddAssembly(Assembly.LoadFrom(assembly));
+            }
+
+            return container;
+        }
+    }
+
+    public sealed class RouteConstructionContainer
+    {
+        private readonly IList<IRouteSource> sources = new List<IRouteSource>();
+        private readonly IList<IRouteInterceptor> interceptors = new List<IRouteInterceptor>();
+        private readonly IList<Type> controllerTypes = new List<Type>();
+        private readonly IList<IControllerActionInterceptor> controllerActionInterceptors = new List<IControllerActionInterceptor>();
+        private readonly IList<IJavaScriptAddition> additions = new List<IJavaScriptAddition>();
+
+        public IEnumerable<IJavaScriptAddition> Additions
+        {
+            get
+            {
+                return additions;
+            }
+        }
+
+        public IEnumerable<IControllerActionInterceptor> ControllerActionInterceptors
+        {
+            get
+            {
+                return controllerActionInterceptors;
+            }
+        }
+
+        public IEnumerable<Type> ControllerTypes
+        {
+            get
+            {
+                return controllerTypes;
+            }
+        }
+
+        public IEnumerable<IRouteInterceptor> Interceptors
+        {
+            get
+            {
+                return interceptors;
+            }
+        }
+
+        public IEnumerable<IRouteSource> Sources
+        {
+            get
+            {
+                return sources;
+            }
+        }
+
+        internal void AddAssembly(Assembly assembly)
+        {
+            foreach (var type in assembly.GetTypes())
+            {
+                object value = null;
+
+                bool publicCtr = type.GetConstructor(new Type[0]) != null;
+
+                if (type.IsA<IRouteSource>() && publicCtr)
                 {
-                    // add the main JsRouting assembly to the scanner
-                    a.Assembly(typeof(Output).Assembly);
+                    sources.Add((IRouteSource)(value = Activator.CreateInstance(type)));
+                }
 
-                    // add the assemblies to scan
-                    foreach (string assembly in assemblies)
-                        a.Assembly(Assembly.LoadFrom(assembly));
+                if (type.IsA<IRouteInterceptor>() && publicCtr)
+                {
+                    interceptors.Add((IRouteInterceptor)(value ?? (value = Activator.CreateInstance(type))));
+                }
 
-                    // types to scan..
-                    a.AddAllTypesOf<IRouteSource>();
-                    a.AddAllTypesOf<IRouteInterceptor>();
-                    a.AddAllTypesOf<ControllerBase>();
-                    a.AddAllTypesOf<IControllerActionInterceptor>();
-                    a.AddAllTypesOf<IJavaScriptAddition>();
-                });
-            });
+                if (type.IsA<ControllerBase>())
+                {
+                    controllerTypes.Add(type);
+                }
+
+                if (type.IsA<IControllerActionInterceptor>() && publicCtr)
+                {
+                    controllerActionInterceptors.Add((IControllerActionInterceptor)(value ?? (value = Activator.CreateInstance(type))));
+                }
+
+                if (type.IsA<IJavaScriptAddition>() && publicCtr)
+                {
+                    additions.Add((IJavaScriptAddition)(value ?? (value = Activator.CreateInstance(type))));
+                }
+            }
+        }
+    }
+
+    internal static class TypeExt
+    {
+        public static bool IsA<T>(this Type sub)
+        {
+            return typeof(T).IsAssignableFrom(sub);
         }
     }
 }

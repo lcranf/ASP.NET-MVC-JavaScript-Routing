@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
-using StructureMap;
 using System.Reflection;
 using System.Web.Script.Serialization;
 
@@ -31,22 +30,31 @@ namespace JsRouting.Core
         /// <summary>
         /// Initializes a new instance of the <see cref="ControllerReader"/> class.
         /// </summary>
-        /// <param name="container">The dependency container.</param>
-        /// <param name="interceptors">Controller action interceptors</param>
-        public ControllerReader(IContainer container, IEnumerable<IControllerActionInterceptor> interceptors)
+        /// <param name="container">Route container</param>
+        public ControllerReader(RouteConstructionContainer container)
+            :this (container.ControllerTypes, container.ControllerActionInterceptors)
         {
-            if (container == null) throw new ArgumentNullException("container");
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ControllerReader"/> class.
+        /// </summary>
+        /// <param name="controllerTypes">Controller types</param>
+        /// <param name="interceptors">Controller interceptors</param>
+        public ControllerReader(IEnumerable<Type> controllerTypes, IEnumerable<IControllerActionInterceptor> interceptors)
+        {
+            if (controllerTypes == null) throw new ArgumentNullException("controllerTypes");
             if (interceptors == null) throw new ArgumentNullException("interceptors");
 
             var paramInterceptor = new ParameterInterceptor(this.FindReader);
             var descritionInterceptor = new SummaryInterceptor(this.FindReader);
 
-            this.Definitions = from inst in container.Model.InstancesOf<ControllerBase>()
-                               from action in inst.ConcreteType.GetMethods()
+            this.Definitions = from inst in controllerTypes
+                               from action in inst.GetMethods()
                                where action.IsPublic
                                where actionResult.IsAssignableFrom(action.ReturnType)
                                let def = new ControllerActionDefinition(action)
-                               where descritionInterceptor.Intercept(def) && paramInterceptor.Intercept(def) && 
+                               where descritionInterceptor.Intercept(def) && paramInterceptor.Intercept(def) &&
                                      interceptors.AsParallel().All(interceptor => interceptor.Intercept(def))
                                select def;
         }
