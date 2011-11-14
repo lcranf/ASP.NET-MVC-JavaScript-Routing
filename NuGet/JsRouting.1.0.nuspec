@@ -4,18 +4,18 @@
     <id>JsRouting</id>
     <version>1.0</version>
     <title>Javascript Routing</title>
-    <authors>Zack Owen,Richard Grundy</authors>
-    <owners>Zack Owen</owners>
+    <authors>Zack Owens,Richard Grundy</authors>
+    <owners>Zack Owens</owners>
     <licenseUrl>https://github.com/zowens/ASP.NET-MVC-JavaScript-Routing</licenseUrl>
     <projectUrl>https://github.com/zowens/ASP.NET-MVC-JavaScript-Routing</projectUrl>
-    <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>Allows ASP.NET MVC routes to be used within JavaScript.</description>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <description>Allows ASP.NET MVC routes to be used within JavaScript in a jQuery-like DSL.</description>
     <summary>Copyright (c) 2011, Zack Owens.
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without 
 modification, are permitted provided that the following conditions are met</summary>
-    <tags>Javascript, Routing</tags>
+    <tags>Javascript, Routing, ASP.NET MVC</tags>
     <dependencies>
       <dependency id="structuremap" version="2.6.3" />
     </dependencies>
@@ -28,6 +28,7 @@ modification, are permitted provided that the following conditions are met</summ
   </metadata>
   <files>
     <file src="JsRouting.tt" target="content\Scripts\JsRouting.tt" />
+    <file src="WebRoutes.cs.pp" target="content\WebRoutes.cs.pp" />
     <file src="..\bin\JsRouting.Core.dll" target="lib\net40\JsRouting.Core.dll" />
     <file src="..\bin\JsRouting.Core.pdb" target="lib\net40\JsRouting.Core.pdb" />
   </files>
