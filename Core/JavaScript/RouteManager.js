@@ -232,7 +232,7 @@
 
         var getData = function (extra) {
             var ret = $.extend({}, extra);
-            $.each($.extend({}, data, r.defaultValues), function (name, value) {
+            $.each($.extend({}, r.defaultValues, data), function (name, value) {
                 if (!ret[name] && !r.params.any(name)) {
                     ret[name] = value;
                 }
