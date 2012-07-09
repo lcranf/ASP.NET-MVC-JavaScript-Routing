@@ -78,7 +78,8 @@ namespace JsRouting.Core
 
         internal void AddAssembly(Assembly assembly)
         {
-            foreach (var type in assembly.GetTypes())
+
+            foreach (var type in TryGetTypes(assembly))
             {
                 object value = null;
 
@@ -108,6 +109,19 @@ namespace JsRouting.Core
                 {
                     additions.Add((IJavaScriptAddition)(value ?? (value = Activator.CreateInstance(type))));
                 }
+            }
+        }
+
+        private IEnumerable<Type> TryGetTypes(Assembly assembly)
+        {
+            try
+            {
+                return assembly.GetTypes();
+            }
+            catch (Exception)
+            {
+                //if Assembly can't be loaded just skip it...
+                return new Type[] {};
             }
         }
     }
